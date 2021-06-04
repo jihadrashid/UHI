@@ -4,8 +4,6 @@ library(rgdal)
 library(raster)
 library(RStoolbox)
 library(caret)
-library(randomForest)
-library(e1071)
 
 #importing study area boundary and sample data produced using QGIS
 boundary = shapefile(".../SAbroad.shp")
