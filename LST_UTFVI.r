@@ -4,10 +4,10 @@ library(raster)
 library(RStoolbox)
 
 #importing study area boundary and sample data produced using QGIS
-boundary = shapefile("C:/Users/user/Desktop/Code/shape/SAbroad.shp")
+boundary = shapefile(".../SAbroad.shp")
 
 #importing image for classification
-metaData = readMeta("C:/Users/user/Desktop/Code/2020/LC08_L1TP_137044_20200211_20200225_01_T1_MTL.txt")
+metaData = readMeta(".../LC08_L1TP_137044_20200211_20200225_01_T1_MTL.txt")
 rawImg = stackMeta(metaData)
 #Atmospheric correction of satellite data to surface reflectance using Dark Object Subtraction (DOS) method.
 rawImg = radCor(rawImg, metaData = metaData, method = "dos")
