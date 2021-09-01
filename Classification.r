@@ -3,6 +3,7 @@
 library(rgdal)
 library(raster)
 library(RStoolbox)
+library(randomForest)
 library(caret)
 
 #importing study area boundary and sample data produced using QGIS
@@ -41,18 +42,43 @@ for (i in 1:length(unique(samplePoly[[uniqueVal]]))){
 
 head(sampleData)
 tail(sampleData)
+sampleData$class <- as.factor(sampleData$class)
+str(sampleData)
 
 #Subsetting sample data for model fitting
-sampleDataMod = sampleData[sample(1:nrow(sampleData), 1000), ]
+set.seed(123)
+part <- sample(2, nrow(sampleData), replace = TRUE, prob = c(0.7, 0.3))
+train <- sampleData[part==1,]
+test <- sampleData[part==2,]
 
 #Fitting random forest model
-modelFit = train(as.factor(class) ~ B2 + B3 + B4 + B5 + B6 + B7 ,
-                   method = "rf", 
-                   data = sampleDataMod)
-modelFit
+# Random Forest
+set.seed(222)
+rf <- randomForest(class~., data=train,
+                   ntree = 250,
+                   mtry = 2,
+                   importance = TRUE,
+                   proximity = TRUE)
 
-#Predicting image classes
-predictedFile <-   predict(img, modelFit)
+print(rf)
+attributes(rf)
+plot(rf)
+
+# # Prediction & Confusion Matrix - test data
+p2 <- predict(rf, test)
+confusionMatrix(p2, test$class)
+
+# Tune mtry
+t <- tuneRF(train[,-1], train[,1],
+            stepFactor = 0.2,
+            plot = TRUE,
+            ntreeTry = 50,
+            trace = TRUE,
+            improve = 0.05)
+
+
+#Final prediction
+preds_rf <- predict(img, rf, type='class')
 
 #Plotting classifieid layer
 clr= c('darkgreen','lightgreen','firebrick2','steelblue','yellow')
